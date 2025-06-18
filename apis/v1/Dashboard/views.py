@@ -166,3 +166,76 @@ def CreateIdeaPost(request):
     return Response(responce_data)
    
 
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def SearchFilter(request):
+    instance = IdeaCard.objects.all()
+    q= request.GET.get('q')
+
+    if q:
+        # Filter posts where the title starts with the query (case-insensitive)
+        instance = instance.filter(Title_of_Idea__istartswith=q)
+
+
+    context = {
+        'request' : request
+    }
+    serializedData = ViewAllPostsSeralizer(instance=instance , many= True , context = context )
+    
+    responce_data = {
+        "status_code": 5000,
+        "data": serializedData.data
+    }
+    return Response(responce_data)
+
+@api_view(['GET'])
+def CategorySeachFilter(request,pk):
+    categroy_instance = Category.objects.get(pk = pk)
+    if IdeaCard.objects.filter(category = categroy_instance).exists():
+
+        instance = IdeaCard.objects.filter(category = categroy_instance)
+        context={
+        "request" : request
+        }
+        serialized_data = ViewAllPostsSeralizer(instance = instance , many = True , context = context)
+        responce_data ={
+            "status_code":5000,
+            "message": serialized_data.data,
+            
+        }
+        return Response(responce_data)
+    else:
+        ARR = [{
+           
+        }]
+        responce_data ={
+            "status_code":5001,
+            "message": ARR,
+            
+        }
+        return Response(responce_data)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def SearchFilterByName(request):
+    instance = IdeaCard.objects.all()
+    q= request.GET.get('q')
+
+    if q:
+        instance = instance.filter(Author__username__istartswith=q)
+
+    context = {
+        'request' : request
+    }
+    serializedData = ViewAllPostsSeralizer(instance=instance , many= True , context = context )
+    
+    responce_data = {
+        "status_code": 5000,
+        "data": serializedData.data
+    }
+    return Response(responce_data)
+
